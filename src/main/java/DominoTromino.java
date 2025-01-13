@@ -35,19 +35,19 @@ public class DominoTromino {
 
 
           // construct the map from the base cases
-          HashMap<Integer, Integer> f = new HashMap<>();
-          f.put(0, 1);
-          f.put(1, 1);
-          f.put(2, 2);
-          f.put(3, 5);
+          HashMap<Integer, Integer> map = new HashMap<>();
+          map.put(0, 1);
+          map.put(1, 1);
+          map.put(2, 2);
+          map.put(3, 5);
 
           // for 2x4 or greater, the number is 2x how many for n-1 + how many for n-3
           for (int i = 4; i <= n; i++) {
-               int value = (int) (((2L * f.get(i - 1)) + f.get(i - 3)) % MOD);
+               int value = (int) (((2L * map.get(i - 1)) + map.get(i - 3)) % MOD);
                // once a value is computed, put it into the map
-               f.put(i, value);
+               map.put(i, value);
           }
 
-          return f.get(n);
+          return map.get(n);
      }
 }
