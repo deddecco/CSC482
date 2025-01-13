@@ -24,8 +24,8 @@ public class DominoTromino {
           // upright, 2 stacked flats
           // 2 stacked flats, upright
           // 3 upright
-          // "PJ" with a tromino
-          // "L7" wth a tromino
+          // "PJ" with 2 trominos
+          // "L7" wth 2 trominos
           if (n == 3) {
                return 5;
           }
