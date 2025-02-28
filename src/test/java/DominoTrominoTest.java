@@ -1,3 +1,4 @@
+import lab1.DominoTromino;
 import org.junit.Test;
 
 public class DominoTrominoTest {
