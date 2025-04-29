@@ -3,56 +3,71 @@ package homework1;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
-import static java.lang.Integer.*;
+import static java.lang.Integer.MAX_VALUE;
+import static java.lang.Integer.parseInt;
+import static java.util.Arrays.fill;
 
 public class Main {
+     // Define infinity as half of the maximum integer value to avoid overflow
      static final int INF = MAX_VALUE / 2;
-     static int N;
-     static int M;
-     static int S;
-     static int D;
-     static ArrayList<ArrayList<Edge>> graph;
-     static ArrayList<ArrayList<Edge>> reverseGraph;
-     static int[] dist;
-     static boolean[][] shortestPathEdges;
+     // Number of nodes in the graph
+     static int nodes;
+     // Number of edges in the graph
+     static int edges;
+     // Starting node
+     static int start;
+     // Destination node
+     static int destination;
+     // Adjacency list representation of the graph
+     static List<List<Edge>> reverseGraph;
+     // Reverse graph for backtracking
+     static List<List<Edge>> graph;
 
+     // Edge class to represent graph edges
      static class Edge {
+          // Destination node of the edge
           int to;
-          int weight;
+          // Length (weight) of the edge
+          int length;
 
-          Edge(int to, int weight) {
-               this.to = to;
-               this.weight = weight;
+          Edge(int origin, int length) {
+               this.to = origin;
+               this.length = length;
           }
      }
 
      public static void main(String[] args) throws IOException {
           BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-          PrintWriter out = new PrintWriter(System.out);
 
           while (true) {
+               // Read number of nodes and edges
                String[] input = br.readLine().split(" ");
-               N = parseInt(input[0]);
-               M = parseInt(input[1]);
+               nodes = parseInt(input[0]);
+               edges = parseInt(input[1]);
 
-               if (N == 0 && M == 0) break;
+               // Exit condition
+               if (nodes == 0 && edges == 0) {
+                    break;
+               }
 
+               // Read start and destination nodes
                input = br.readLine().split(" ");
-               S = parseInt(input[0]);
-               D = parseInt(input[1]);
+               start = parseInt(input[0]);
+               destination = parseInt(input[1]);
 
+               // Initialize graph and reverse graph
                graph = new ArrayList<>();
                reverseGraph = new ArrayList<>();
-               for (int i = 0; i < N; i++) {
+               for (int i = 0; i < nodes; i++) {
                     graph.add(new ArrayList<>());
                     reverseGraph.add(new ArrayList<>());
                }
 
-               for (int i = 0; i < M; i++) {
+               // Read edges and populate graph and reverse graph
+               for (int i = 0; i < edges; i++) {
                     input = br.readLine().split(" ");
                     int U = parseInt(input[0]);
                     int V = parseInt(input[1]);
@@ -61,53 +76,86 @@ public class Main {
                     reverseGraph.get(V).add(new Edge(U, P));
                }
 
-               shortestPathEdges = new boolean[N][N];
-               int shortestDist = dijkstra(S, D);
-               markShortestPaths(D);
-
-               int almostShortestDist = dijkstra(S, D);
-               out.println(almostShortestDist == INF ? -1 : almostShortestDist);
+               // Calculate and print the result
+               int result = almostShortestPath();
+               if (result == INF) {
+                    System.out.println(-1);
+               } else {
+                    System.out.println(result);
+               }
           }
-
-          out.close();
      }
 
-     static int dijkstra(int start, int end) {
-          dist = new int[N];
-          Arrays.fill(dist, INF);
+     // Find the almost shortest path
+     static int almostShortestPath() {
+          // Find the shortest path
+          int[] dist = dijkstra(start, graph);
+          if (dist[destination] == INF) {
+               return INF;
+          }
+
+          // Remove edges of the shortest path
+          removeShortestPathEdges(destination, start, dist, graph, reverseGraph);
+
+          // Find the new shortest path (which is the almost shortest path)
+          return dijkstra(start, graph)[destination];
+     }
+
+     // Dijkstra's algorithm to find the shortest paths
+     static int[] dijkstra(int start, List<List<Edge>> g) {
+          int[] dist = new int[nodes];
+          fill(dist, INF);
           dist[start] = 0;
 
-          PriorityQueue<Integer> pq = new PriorityQueue<>(N, (a, b) -> compare(dist[a], dist[b]));
+          PriorityQueue<Integer> pq = new PriorityQueue<>(nodes);
           pq.insert(start, 0);
 
           while (pq.size > 0) {
                int u = pq.extractMin();
-               if (u == end) break;
-
-               for (Edge e : graph.get(u)) {
-                    if (shortestPathEdges[u][e.to]) continue;
-                    int newDist = dist[u] + e.weight;
-                    if (newDist < dist[e.to]) {
-                         dist[e.to] = newDist;
-                         if (pq.contains(e.to)) {
-                              pq.changePriority(e.to, newDist);
+               for (Edge e : g.get(u)) {
+                    int v = e.to;
+                    int newDist = dist[u] + e.length;
+                    if (newDist < dist[v]) {
+                         dist[v] = newDist;
+                         if (pq.contains(v)) {
+                              pq.changePriority(v, newDist);
                          } else {
-                              pq.insert(e.to, newDist);
+                              pq.insert(v, newDist);
                          }
                     }
                }
           }
-
-          return dist[end];
+          return dist;
      }
 
-     static void markShortestPaths(int v) {
-          if (v == S) return;
-          for (Edge e : reverseGraph.get(v)) {
-               if (dist[v] == dist[e.to] + e.weight) {
-                    shortestPathEdges[e.to][v] = true;
-                    markShortestPaths(e.to);
+     // Remove edges that are part of the shortest path
+     static void removeShortestPathEdges(int u,
+                                         int target,
+                                         int[] dist,
+                                         List<List<Edge>> graph,
+                                         List<List<Edge>> reverseGraph) {
+          if (u == target) {
+               return;
+          }
+
+          List<Edge> toRemove = new ArrayList<>();
+          for (Edge e : reverseGraph.get(u)) {
+               // Check if this edge is part of the shortest path
+               if (dist[u] == dist[e.to] + e.length) {
+                    // Identify the edge to remove from graph
+                    for (Edge forwardEdge : graph.get(e.to)) {
+                         if (forwardEdge.to == u && forwardEdge.length == e.length) {
+                              toRemove.add(forwardEdge);
+                         }
+                    }
+                    // Recursively remove edges from the previous node
+                    removeShortestPathEdges(e.to, target, dist, graph, reverseGraph);
                }
+          }
+
+          // Remove the identified edges from the graph
+          for (int i = 0; i < nodes; i++) {
+               graph.get(i).removeAll(toRemove);
           }
      }
 }

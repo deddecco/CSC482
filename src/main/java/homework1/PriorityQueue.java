@@ -1,10 +1,9 @@
 package homework1;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 
-public class PriorityQueue<T> {
+class PriorityQueue<T> {
      private final ArrayList<Node<T>> heap;
      private final HashMap<T, Integer> position;
      public int size;
@@ -20,7 +19,7 @@ public class PriorityQueue<T> {
           }
      }
 
-     public PriorityQueue(int capacity, Comparator<? super T> comparator) {
+     public PriorityQueue(int capacity) {
           this.heap = new ArrayList<>(capacity + 1);
           this.heap.add(null); // Add a dummy element at index 0
           this.position = new HashMap<>();
@@ -60,11 +59,15 @@ public class PriorityQueue<T> {
           int left = leftChild(index);
           int right = rightChild(index);
 
-          if (left <= size && heap.get(left).priority < heap.get(minIndex).priority) {
-               minIndex = left;
+          if (left <= size) {
+               if (heap.get(left).priority < heap.get(minIndex).priority) {
+                    minIndex = left;
+               }
           }
-          if (right <= size && heap.get(right).priority < heap.get(minIndex).priority) {
-               minIndex = right;
+          if (right <= size) {
+               if (heap.get(right).priority < heap.get(minIndex).priority) {
+                    minIndex = right;
+               }
           }
 
           if (minIndex != index) {

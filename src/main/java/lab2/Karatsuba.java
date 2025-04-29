@@ -5,7 +5,7 @@ import static java.lang.Long.parseLong;
 public class Karatsuba {
 
      // Function to multiply two numbers using the Karatsuba algorithm (with string inputs)
-     public String multiply(String x, String y) {
+     public static String multiply(String x, String y) {
           // Base case: if one of the numbers is a single digit, just multiply them directly
           if (x.length() == 1 || y.length() == 1) {
                return String.valueOf(parseLong(x) * parseLong(y));
