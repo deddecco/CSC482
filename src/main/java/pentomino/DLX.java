@@ -19,12 +19,11 @@ public class DLX {
                C = c;
           }
 
-          DataNode linkDown(DataNode node) {
+          void linkDown(DataNode node) {
                node.D = D;
                node.D.U = node;
                node.U = this;
                D = node;
-               return node;
           }
 
           DataNode linkRight(DataNode node) {
@@ -188,7 +187,6 @@ public class DLX {
 }
 
 class PentominoData {
-     // Corrected orientations: F restricted (2), V unrestricted (4)
      static final int[][] F = {{1, -1, 1, 0, 1, 1, 2, 1}, {0, 1, 1, -1, 1, 0, 2, 0}};
      static final int[][] V = {{1, 0, 2, 0, 2, 1, 2, 2}, {0, 1, 0, 2, 1, 0, 2, 0}, {1, 0, 2, -2, 2, -1, 2, 0}, {0, 1, 0, 2, 1, 2, 2, 2}};
      static final int[][] I = {{0, 1, 0, 2, 0, 3, 0, 4}, {1, 0, 2, 0, 3, 0, 4, 0}};
